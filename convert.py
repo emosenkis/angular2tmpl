@@ -31,8 +31,10 @@ def main(args):
     converter.module(noscript)
     with open(args.infile, 'rb') as f:
         document = converter.Convert(f)
-    args.outfile.write('<!doctype html>\n')
-    args.outfile.write(document.toxml(encoding='utf-8'))
+    xml = document.toxml(encoding='utf-8')
+    # Strip off XML declaration
+    xml = xml[xml.index(b'>') + 1:]
+    args.outfile.write(xml)
 
 
 class Converter(object):
@@ -113,6 +115,10 @@ class Converter(object):
         # TODO(eitan): something safer for modifying during iteration
         for child in list(elem.childNodes):
             self._convert(doc, child)
+        # Avoid invalid self-closing tags by inserting a comment in empty tags
+        # TODO(eitan): check against list of HTML5 bodyless tags
+        if not elem.childNodes:
+            elem.appendChild(doc.createComment('nocollapse'))
 
     def _get_attribute_map(self, elem):
         if elem.attributes:
