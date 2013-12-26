@@ -68,8 +68,13 @@ class Converter(object):
         return document
 
     def ConvertExpr(self, text):
-        # TODO(eitan): be more nuanced about replacing $
-        text = text.replace('$', '_')
+        # TODO(eitan): be more nuanced about replacing $, &&, !, ||, etc.
+        text = text \
+            .replace('$', '_') \
+            .replace('&&', ' and ') \
+            .replace('||', ' or ') \
+            .replace('!', ' not ') \
+            .replace(' not =', '!=')  # '!=' -> ' not =' -> '!='
         # TODO(eitan): This assumes | and : don't appear in strings
         parts = text.split('|')
         for i, filter in enumerate(parts[1:], start=1):
@@ -86,8 +91,30 @@ class Converter(object):
                 parts[i] = args[0]
         return '|'.join(parts)
 
+    def _convert_text_node(self, document, element):
+        data = element.wholeText
+        out = io.StringIO()
+        i = 0
+        while i < len(data):
+            start = data.find('{{', i)
+            if start == -1:
+                break
+            end = data.find('}}', start)
+            if end == -1:
+                break
+            out.write(data[i:start])
+            expr = data[start + 2:end]
+            out.write('{{')
+            out.write(self.ConvertExpr(expr))
+            out.write('}}')
+            i = end + 2
+        out.write(data[i:])
+        element.replaceWholeText(out.getvalue())
+
     def _convert(self, document, element):
-        if element.nodeType != minidom.Node.ELEMENT_NODE:
+        if element.nodeType == minidom.Node.TEXT_NODE:
+            return self._convert_text_node(document, element)
+        elif element.nodeType != minidom.Node.ELEMENT_NODE:
             # TODO(eitan): handle text nodes and comments appropriately
             return
         tagName = self._normalize_name(element.tagName)
