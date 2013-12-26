@@ -294,7 +294,7 @@ def ngRepeat(document, element, converter, value):
         '_index': 'loop.index0',
         '_first': 'loop.first',
         '_last': 'loop.last',
-        '_middle': '(not first and not last)',
+        '_middle': '(not loop.first and not loop.last)',
         '_even': 'loop.cycle(True, False)',
         '_odd': 'loop.cycle(False, True)',
     }
