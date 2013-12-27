@@ -101,6 +101,7 @@ class Converter(object):
     def ConvertExpr(self, text):
         # TODO(eitan): be more nuanced about replacing $, &&, !, ||, etc.
         text = text \
+            .replace('null', 'none') \
             .replace('$', '_') \
             .replace('&&', ' and ') \
             .replace('||', ' or ') \
