@@ -100,11 +100,14 @@ class Converter(object):
 
     def ConvertExpr(self, text):
         # TODO(eitan): be more nuanced about replacing $, &&, !, ||, etc.
+        # TODO(eitan): should === be == or is?
         text = text \
             .replace('null', 'none') \
             .replace('$', '_') \
             .replace('&&', ' and ') \
             .replace('||', ' or ') \
+            .replace('===', '==') \
+            .replace('!==', '!=') \
             .replace('!', ' not ') \
             .replace(' not =', '!=')  # '!=' -> ' not =' -> '!='
         # TODO(eitan): This assumes | and : don't appear in strings
