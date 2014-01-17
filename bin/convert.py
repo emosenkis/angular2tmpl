@@ -23,13 +23,19 @@ def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument('--infile',
                         type=argparse.FileType('r'),
-                        default=sys.stdin)
+                        default=sys.stdin,
+                        help='defaults to stdin')
     parser.add_argument('--outfile',
                         type=argparse.FileType('w'),
-                        default=sys.stdout)
-    parser.add_argument('--verbose', '-v', action='count', default=0)
-    parser.add_argument('--module', action='append', default=[])
-    parser.add_argument('--ng', type=bool, default=True)
+                        default=sys.stdout,
+                        help='defaults to stdout')
+    parser.add_argument('--verbose', '-v', action='count', default=0,
+                        help='can be repeated')
+    parser.add_argument('--module', action='append', default=[],
+                        help='Python path of a Module to load;'
+                        ' can be repeated')
+    parser.add_argument('--ng', type=bool, default=True,
+                        help='use --ng=false to skip loading the ng Module')
     args = parser.parse_args(args)
     logging.basicConfig(level=LOG_LEVELS[min(args.verbose,
                                              len(LOG_LEVELS) - 1)])
