@@ -125,3 +125,13 @@ def select(document, element, attrs):
     element.appendChild(start_loop)
     element.appendChild(loop_body)
     element.appendChild(end_loop)
+
+
+def makeNgAttrDirective(name):
+    @ng.directive(name='ng' + name.title())
+    def ngAttr(element, value):
+        element.setAttribute(name, value)
+
+
+for attr in ('href', 'src', 'value'):
+    makeNgAttrDirective(attr)
