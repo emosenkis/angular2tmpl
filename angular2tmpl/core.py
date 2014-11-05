@@ -63,6 +63,9 @@ class Converter(object):
         return xml
 
     def ConvertExpr(self, text):
+	text = text.strip()
+	if text.startswith('::')
+	    text = text[2:]
         # TODO(eitan): be more nuanced about replacing $, &&, !, ||, etc.
         # TODO(eitan): should === be == or is?
         text = text \
