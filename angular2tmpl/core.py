@@ -64,7 +64,7 @@ class Converter(object):
 
     def ConvertExpr(self, text):
 	text = text.strip()
-	if text.startswith('::')
+	if text.startswith('::'):
 	    text = text[2:]
         # TODO(eitan): be more nuanced about replacing $, &&, !, ||, etc.
         # TODO(eitan): should === be == or is?
@@ -93,28 +93,33 @@ class Converter(object):
                 parts[i] = args[0]
         return '|'.join(parts)
 
-    def _convert_text_node(self, document, node):
-        data = node.wholeText
+    def _convert_string(self, string):
         out = io.StringIO()
         i = 0
-        while i < len(data):
-            start = data.find('{{', i)
+        while i < len(string):
+            start = string.find('{{', i)
             if start == -1:
                 break
-            end = data.find('}}', start)
+            end = string.find('}}', start)
             if end == -1:
                 break
-            out.write(data[i:start])
-            expr = data[start + 2:end]
+            out.write(string[i:start])
+            expr = string[start + 2:end]
             out.write('{{')
             out.write(self.ConvertExpr(expr))
             out.write('}}')
             i = end + 2
-        out.write(data[i:])
-        node.replaceWholeText(out.getvalue())
+        out.write(string[i:])
+	return out.getvalue()
+
+    def _convert_text_node(self, document, node):
+        node.replaceWholeText(self._convert_string(node.wholeText))
 
     def _convert_element(self, document, element):
         tagName = self._normalize_name(element.tagName)
+	if element.attributes:
+	    for attr in element.attributes.keys():
+		element.setAttribute(attr, self._convert_string(element.getAttribute(attr)))
         attrs = self._get_attribute_map(element)
         # TODO(eitan): convert ngAttrFoo -> foo
         for directive in self._directives:
